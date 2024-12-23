@@ -38,12 +38,13 @@ public class SpringSecurityConfig {
 
         auth
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(
                         req ->
 
                                 req
-                                        .requestMatchers("/login", "/register", "/user", "/google/login").permitAll()
+                                        .requestMatchers("/api/v1/login", "/register", "/user", "/google/login", "/api/v1/video").permitAll()
                                         .anyRequest().authenticated()
 
                 );

@@ -70,7 +70,7 @@ public class GoogleOAuthService {
                 String token = this.jwtService.generate(existingUser.getEmail());
 
 
-                return new LoginResponse(existingUser.getEmail(), existingUser.getUsername(), token);
+                return new LoginResponse(existingUser.getEmail(), existingUser.getUsername(), token, existingUser.getIsPremiumUser());
 
             }catch(UsernameNotFoundException e){
 
@@ -95,7 +95,7 @@ public class GoogleOAuthService {
 
                 String token = this.jwtService.generate(registerUser.getEmail());
 
-                return new LoginResponse(registerUser.getEmail(), registerUser.getUsername(), token);
+                return new LoginResponse(registerUser.getEmail(), registerUser.getUsername(), token, registerUser.getIsPremiumUser());
 
 
             }

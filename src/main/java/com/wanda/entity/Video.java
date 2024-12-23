@@ -21,6 +21,8 @@ public class Video {
 
     private String description;
 
+    private Boolean isPremium;
+
     private String filePath;
 
 

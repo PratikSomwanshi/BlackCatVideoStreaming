@@ -10,4 +10,5 @@ public enum ErrorCode {
     INVALID_GOOGLE_OAUTH_TOKEN,
     USER_NOT_FOUND,
     BAD_CREDENTIALS,
+    USER_NOT_PREMIUM
 }

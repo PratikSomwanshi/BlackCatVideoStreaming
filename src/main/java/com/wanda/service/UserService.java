@@ -78,7 +78,7 @@ public class UserService {
 
                 String token = jwtService.generate(user.getEmail());
 
-                return new LoginResponse(fetchedUser.getUsername(),fetchedUser.getEmailUsername(), token);
+                return new LoginResponse(fetchedUser.getUsername(),fetchedUser.getEmailUsername(), token, fetchedUser.getIsPremiumUser());
 
             }
 

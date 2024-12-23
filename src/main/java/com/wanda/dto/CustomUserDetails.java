@@ -34,6 +34,10 @@ public class CustomUserDetails implements UserDetails {
         return this.user.getUsername();
     }
 
+    public Boolean getIsPremiumUser(){
+        return this.user.getIsPremiumUser();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

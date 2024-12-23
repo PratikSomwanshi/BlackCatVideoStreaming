@@ -1,18 +1,19 @@
 package com.wanda.controller;
 
 
+import com.wanda.entity.Video;
 import com.wanda.service.VideoService;
 import com.wanda.utils.exceptions.CustomException;
 import com.wanda.utils.exceptions.enums.ErrorCode;
+import com.wanda.utils.exceptions.enums.SuccessCode;
+import com.wanda.utils.exceptions.response.SuccessResponse;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +27,34 @@ public class VideoController {
 
     public VideoController(VideoService videoService) {
         this.videoService = videoService;
+    }
+
+    @PostMapping("/video")
+    public ResponseEntity<Object> createVideo(@RequestBody Video video) {
+
+
+        var existingVideo = this.videoService.findOneVideo(video.getId());
+
+        var success = new SuccessResponse<>(
+                "Successfully fetched the video",
+                SuccessCode.GENERAL_SUCCESS,
+                existingVideo
+        );
+
+        return new ResponseEntity<>(success, HttpStatus.OK);
+    }
+
+    @GetMapping("/video")
+    public ResponseEntity<?> findAllVideo(){
+        var res = this.videoService.findAllVideo();
+
+        var success = new SuccessResponse<>(
+                "Successfully fetched all videos",
+                SuccessCode.GENERAL_SUCCESS,
+                res
+        );
+
+        return new ResponseEntity<>(success, HttpStatus.OK);
     }
 
 

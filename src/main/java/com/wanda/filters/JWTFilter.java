@@ -1,6 +1,7 @@
 package com.wanda.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wanda.dto.CustomUserDetails;
 import com.wanda.service.CustomUserDetailsService;
 import com.wanda.service.JWTService;
 import com.wanda.utils.exceptions.CustomException;
@@ -44,10 +45,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // Skip filtering for login and register endpoints
         System.out.println(path);
-        if (path.equals("/login") || path.equals("/register") || path.equals("/user") || path.equals("/google/login")) {
+        if (path.equals("/api/v1/login") || path.equals("/register") || path.equals("/user") || path.equals("/google/login") || path.equals("/api/v1/video")) {
             filterChain.doFilter(request, response);
             return;
         }
+
+
 
         // Extract Authorization header
         String bearer = request.getHeader("Authorization");
@@ -62,6 +65,13 @@ public class JWTFilter extends OncePerRequestFilter {
             // Skip if the user is already authenticated
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 var user = customUserDetailsService.loadUserByUsername(email);
+
+                if (path.startsWith("/api/v1/video/hls/")) {
+                    if (!user.getIsPremiumUser()) {
+                        sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "Access restricted to premium users.", ErrorCode.USER_NOT_PREMIUM);
+                        return;
+                    }
+                }
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         user,
