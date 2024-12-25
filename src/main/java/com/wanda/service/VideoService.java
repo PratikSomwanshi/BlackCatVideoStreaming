@@ -30,6 +30,7 @@ public class VideoService {
 
     public FileSystemResource getMasterFile(String videoId, String resolution) {
 
+        System.out.println("Video Dir: " + VideoDIR);
         Path filePath = Paths.get(VideoDIR, videoId, resolution, "master.m3u8");
 
         System.out.println("filePath: " + filePath);

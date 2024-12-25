@@ -13,8 +13,8 @@ public class CorsConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**") // Apply CORS to all paths
-                        .allowedOrigins("http://localhost:3000") // Allowed origins
-                        .allowedMethods("GET", "POST", "PUT", "DELETE") // Allowed HTTP methods
+                        .allowedOrigins("https://black-cat-video-streaming.vercel.app", "http://localhost:3000") // Allowed origins
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allowed HTTP methods
                         .allowedHeaders("*") // Allowed headers
                         .allowCredentials(true) // Allow sending credentials
                         .maxAge(3600); // Cache preflight response for 1 hour

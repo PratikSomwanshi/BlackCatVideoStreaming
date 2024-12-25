@@ -2,6 +2,8 @@ package com.wanda.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wanda.dto.CustomUserDetails;
+import com.wanda.dto.RedisUserDTO;
+import com.wanda.entity.Users;
 import com.wanda.service.CustomUserDetailsService;
 import com.wanda.service.JWTService;
 import com.wanda.utils.exceptions.CustomException;
@@ -11,13 +13,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Configuration
 public class JWTFilter extends OncePerRequestFilter {
@@ -26,13 +32,20 @@ public class JWTFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService customUserDetailsService;
     private final ObjectMapper objectMapper; // To convert objects to JSON
 
+    private final String USER_CACHE_KEY = "user:";
+
+    private RedisTemplate<String, Object> redisTemplate;
+
     public JWTFilter(
             JWTService jwtService,
             CustomUserDetailsService customUserDetailsService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            RedisTemplate<String, Object> redisTemplate
+    ) {
         this.jwtService = jwtService;
         this.customUserDetailsService = customUserDetailsService;
         this.objectMapper = objectMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -62,21 +75,33 @@ public class JWTFilter extends OncePerRequestFilter {
             // Extract email from token
             String email = jwtService.extractEmail(bearer);
 
+            System.out.println("email extracted: " + email);
             // Skip if the user is already authenticated
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                var user = customUserDetailsService.loadUserByUsername(email);
+
+                var cachedUser = (RedisUserDTO) redisTemplate.opsForValue().get(USER_CACHE_KEY + email);
+
+                if(cachedUser == null) {
+                    System.out.println("from database");
+                    var user = customUserDetailsService.loadUserByUsername(email);
+                    cachedUser = new RedisUserDTO( user.getEmailUsername(),user.getUsername(), user.getIsPremiumUser());
+                    redisTemplate.opsForValue().set(USER_CACHE_KEY + email, cachedUser, Duration.ofMinutes(60));
+                }else{
+                    System.out.println("from redis");
+                }
+
 
                 if (path.startsWith("/api/v1/video/hls/")) {
-                    if (!user.getIsPremiumUser()) {
+                    if (!cachedUser.getIsPremium()) {
                         sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "Access restricted to premium users.", ErrorCode.USER_NOT_PREMIUM);
                         return;
                     }
                 }
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user,
+                        cachedUser,
                         null,
-                        user.getAuthorities()
+                        null
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -3,9 +3,16 @@ spring:
   application:
     name: Spring_Video_Streaming
 
+  data:
+    redis:
+      port: 19320
+      host: redis-19320.c330.asia-south1-1.gce.redns.redis-cloud.com
+      username: default
+      password: v1VYzfJYqRUyHePpSswkuguwSPHCrgaB
+
   datasource:
-    url: jdbc:mysql://localhost:3306/Spring_Video_Stream
-    username: root
+    url: jdbc:mysql://67.217.240.192:3306/SpringBootVideo
+    username: video_user
     password: 2002
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
@@ -23,7 +30,7 @@ spring:
 
 
 video:
-  directory: videos
+  directory: /var/videos
 
 
 server:
