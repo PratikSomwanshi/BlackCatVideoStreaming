@@ -1,0 +1,8 @@
+/gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+
+
+/videos
+
+/src/main/resources/application.yml
